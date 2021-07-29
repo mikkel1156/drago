@@ -36,7 +36,7 @@ ifeq ($(DOCKER),1)
 	HOST_USER ?= $(strip $(if $(USER),$(USER),nodummy))
 	HOST_UID ?= $(strip $(if $(shell id -u),$(shell id -u),4000))
 	DOCKER_BUILDER_IMAGE_AVAILABLE := $(shell docker images --filter LABEL=com.drago.builder=true -q)
-	BUILD_DOCKER_BUILDER_IMAGE_CMD := (docker build --label com.drago.builder=true --build-arg HOST_UID=${HOST_UID} --build-arg HOST_USER=${HOST_USER} -t drago_builder  . -f ./build/Dockerfile.builder)
+	BUILD_DOCKER_BUILDER_IMAGE_CMD := (docker build --label com.drago.builder=true -t drago_builder . -f ./build/Dockerfile.builder)
 endif
 
 # =========== Targets ===========
@@ -90,7 +90,7 @@ ifeq ($(DOCKER_BUILDER_IMAGE_AVAILABLE),)
 	@echo "==> Building Docker builder image..."
 	@$(call BUILD_DOCKER_BUILDER_IMAGE_CMD)
 endif	
-	docker run --rm -v ${PROJECT_ROOT}:${PROJECT_ROOT} --workdir=${PROJECT_ROOT} drago_builder \
+	docker run --rm -v ${PROJECT_ROOT}:/data drago_builder \
 	/bin/sh -c ${CMD}
 else
 	@eval ${CMD}
@@ -116,7 +116,7 @@ ifeq ($(DOCKER_BUILDER_IMAGE_AVAILABLE),)
 	@echo "==> Building Docker builder image..."
 	@$(call BUILD_DOCKER_BUILDER_IMAGE_CMD)
 endif	
-	docker run --rm -v ${PROJECT_ROOT}:${PROJECT_ROOT} --workdir=${PROJECT_ROOT} drago_builder \
+	docker run --rm -v ${PROJECT_ROOT}:/data drago_builder \
 	/bin/sh -c ${CMD}
 else
 	@eval ${CMD}
